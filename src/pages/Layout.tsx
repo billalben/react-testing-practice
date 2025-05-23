@@ -6,7 +6,7 @@ const Layout = () => {
   return (
     <>
       <NavBar />
-      <main className="prose p-5">
+      <main className="prose p-5 min-h-[calc(100vh-4.5rem)]">
         <Outlet />
         <Toaster />
       </main>
