@@ -21,14 +21,17 @@ describe("UserAccount", () => {
     const userListItems = screen.getAllByRole("listitem");
     expect(userListItems).toHaveLength(users.length);
 
-    users.forEach((user) => {
+    users.forEach((user, index) => {
       // const userLink = screen.getByText(user.name);
       // expect(userLink).toBeInTheDocument();
       // expect(userLink.closest("a")).toHaveAttribute("href", `/users/${user.id}`);
 
-      const link = screen.getByRole("link", { name: user.name });
-      expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute("href", `/users/${user.id}`);
+      // const link = screen.getByRole("link", { name: user.name });
+      // expect(link).toBeInTheDocument();
+      // expect(link).toHaveAttribute("href", `/users/${user.id}`);
+
+      expect(userListItems[index]).toBeInTheDocument();
+      expect(userListItems[index]).toHaveAttribute("href", `/users/${user.id}`);
     });
   });
 });
