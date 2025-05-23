@@ -18,8 +18,11 @@ describe("UserAccount", () => {
 
     render(<UserList users={users} />);
 
-    const userListItems = screen.getAllByRole("listitem");
-    expect(userListItems).toHaveLength(users.length);
+    // const userListItems = screen.getAllByRole("listitem");
+    // expect(userListItems).toHaveLength(users.length);
+
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(users.length);
 
     users.forEach((user, index) => {
       // const userLink = screen.getByText(user.name);
@@ -30,8 +33,8 @@ describe("UserAccount", () => {
       // expect(link).toBeInTheDocument();
       // expect(link).toHaveAttribute("href", `/users/${user.id}`);
 
-      expect(userListItems[index]).toBeInTheDocument();
-      expect(userListItems[index]).toHaveAttribute("href", `/users/${user.id}`);
+      expect(links[index]).toBeInTheDocument();
+      expect(links[index]).toHaveAttribute("href", `/users/${user.id}`);
     });
   });
 });
