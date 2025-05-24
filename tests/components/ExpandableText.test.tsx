@@ -31,7 +31,9 @@ describe("ExpandableText", () => {
     renderComponent(longText);
     const article = screen.getByRole("article");
     expect(article).toBeInTheDocument();
-    expect(article).toHaveTextContent(longText.substring(0, limit) + "...");
+    expect(article).toHaveTextContent(
+      longText.substring(0, limit - 30) + "..."
+    );
 
     const button = screen.getByRole("button", { name: /show more/i });
     expect(button).toBeInTheDocument();
