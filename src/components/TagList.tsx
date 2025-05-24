@@ -3,14 +3,21 @@ import { useEffect, useState } from "react";
 
 const TagList = () => {
   const [tags, setTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTags = async () => {
-      await delay(500);
-      setTags(["tag1", "tag2", "tag3"]);
+      setLoading(true);
+      await delay(1000);
+      setLoading(false);
+      setTags(["react", "javascript", "typescript", "web development"]);
     };
     fetchTags();
-  });
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ul>
