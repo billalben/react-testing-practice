@@ -3,8 +3,9 @@
 // import ExpandableText from "../components/ExpandableText";
 // import SearchBox from "../components/SearchBox";
 // import TagList from "../components/TagList";
+// import ToastDemo from "../components/ToastDemo";
 
-import ToastDemo from "../components/ToastDemo";
+import OrderStatusSelector from "../components/OrderStatusSelector";
 
 const PlaygroundPage = () => {
   // return <Onboarding />;
@@ -12,8 +13,10 @@ const PlaygroundPage = () => {
   // return <ExpandableText text={"a".repeat(256)} />;
   // return <SearchBox onChange={(text) => console.log(text)} />;
   // return <TagList />;
+  // return <ToastDemo />;
+  // return <OrderStatusSelector onChange={(status) => console.log("Selected status:", status)} />;
 
-  return <ToastDemo />;
+  return <OrderStatusSelector onChange={console.log} />;
 };
 
 export default PlaygroundPage;
