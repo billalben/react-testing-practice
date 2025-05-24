@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 describe("OrderStatusSelector", () => {
   const renderComponent = () => {
     const handleChange = vi.fn();
+
     render(
       <Theme>
         <OrderStatusSelector onChange={handleChange} />
@@ -17,6 +18,7 @@ describe("OrderStatusSelector", () => {
       user: userEvent.setup(),
       handleChange,
       getOptions: () => screen.getAllByRole("option"),
+      getOption: (label: RegExp) => screen.getByRole("option", { name: label }),
     };
   };
 
@@ -36,13 +38,30 @@ describe("OrderStatusSelector", () => {
     expect(labels).toEqual(["New", "Processed", "Fulfilled"]);
   });
 
-  it("should call onChange with the selected value", async () => {
-    const { trigger, user, handleChange } = renderComponent();
+  it.each([
+    // { label: /new/i, value: "new" },
+    { label: /processed/i, value: "processed" },
+    { label: /fulfilled/i, value: "fulfilled" },
+  ])(
+    "should call onChange with $label when $value is selected",
+    async ({ label, value }) => {
+      const { trigger, user, handleChange, getOption } = renderComponent();
+      await user.click(trigger);
+
+      const option = getOption(label);
+      await user.click(option);
+
+      expect(handleChange).toHaveBeenCalledWith(value);
+    }
+  );
+
+  it("should not call onChange when the same value is selected", async () => {
+    const { trigger, user, handleChange, getOption } = renderComponent();
     await user.click(trigger);
 
-    const option = screen.getByText("Processed");
+    const option = getOption(/new/i);
     await user.click(option);
 
-    expect(handleChange).toHaveBeenCalledWith("processed");
+    expect(handleChange).not.toHaveBeenCalled();
   });
 });
