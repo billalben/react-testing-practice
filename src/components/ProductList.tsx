@@ -20,6 +20,7 @@ const ProductList = () => {
         else setError("An unexpected error occurred");
       }
     };
+
     fetchProducts();
   }, []);
 
