@@ -1,27 +1,31 @@
-import { http, HttpResponse } from "msw";
-import { products } from "./data";
+import { db } from "./db";
 
-export const handlers = [
-  http.get("/categories", () => {
-    return HttpResponse.json([
-      { id: 1, name: "Electronics" },
-      { id: 2, name: "Books" },
-      { id: 3, name: "Clothing" },
-    ]);
-  }),
+export const handlers = [...db.product.toHandlers("rest")];
 
-  http.get("/products", () => {
-    return HttpResponse.json(products);
-  }),
+// import { http, HttpResponse } from "msw";
+// import { products } from "./data";
 
-  http.get("/products/:id", (req) => {
-    const productId = parseInt(req.params.id as string);
-    const product = products.find((p) => p.id === productId);
+// export const handlers = [
+//   http.get("/categories", () => {
+//     return HttpResponse.json([
+//       { id: 1, name: "Electronics" },
+//       { id: 2, name: "Books" },
+//       { id: 3, name: "Clothing" },
+//     ]);
+//   }),
 
-    if (!product) {
-      return HttpResponse.json(null, { status: 404 });
-    }
+//   http.get("/products", () => {
+//     return HttpResponse.json(products);
+//   }),
 
-    return HttpResponse.json(product);
-  }),
-];
+//   http.get("/products/:id", (req) => {
+//     const productId = parseInt(req.params.id as string);
+//     const product = products.find((p) => p.id === productId);
+
+//     if (!product) {
+//       return HttpResponse.json(null, { status: 404 });
+//     }
+
+//     return HttpResponse.json(product);
+//   }),
+// ];
