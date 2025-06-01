@@ -46,4 +46,16 @@ describe("ProductDetail", () => {
 
     expect(await screen.findByText(/invalid/i)).toBeInTheDocument();
   });
+
+  it("should render error message if API returns an error", async () => {
+    // server.use(
+    //   http.get("/products/1", () => HttpResponse.json(null, { status: 500 }))
+    // );
+    server.use(http.get("/products/1", () => HttpResponse.error()));
+
+    render(<ProductDetail productId={1} />);
+
+    const errorMessage = await screen.findByText(/error/i);
+    expect(errorMessage).toBeInTheDocument();
+  });
 });
