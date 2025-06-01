@@ -7,8 +7,33 @@ import { server } from "../mocks/server";
 import { http, HttpResponse, delay } from "msw";
 import AllProviders from "../AllProviders";
 import BrowseProducts from "../../src/pages/BrowseProductsPage";
+import userEvent from "@testing-library/user-event";
+import { Category, Product } from "../../src/entities";
+import { db } from "../mocks/db";
 
 describe("BrowseProductsPage", () => {
+  const categories: Category[] = [];
+  const products: Product[] = [];
+
+  beforeAll(() => {
+    [1, 2].forEach((item) => {
+      const category = db.category.create({ name: "Category " + item });
+      categories.push(category);
+
+      [1, 2].forEach(() => {
+        products.push(db.product.create({ categoryId: category.id }));
+      });
+    });
+  });
+
+  afterAll(() => {
+    const categoryIds = categories.map((c) => c.id);
+    db.category.deleteMany({ where: { id: { in: categoryIds } } });
+
+    const productIds = products.map((p) => p.id);
+    db.product.deleteMany({ where: { id: { in: productIds } } });
+  });
+
   it("should show a loading skeleton when fetching categories", () => {
     server.use(
       http.get("/categories", async () => {
@@ -72,5 +97,37 @@ describe("BrowseProductsPage", () => {
     );
 
     expect(await screen.findByText(/error/i)).toBeInTheDocument();
+  });
+
+  it("should render categories", async () => {
+    render(<BrowseProducts />, { wrapper: AllProviders });
+
+    const combobox = await screen.findByRole("combobox");
+    const user = userEvent.setup();
+    await user.click(combobox);
+
+    const options = await screen.findAllByRole("option");
+
+    expect(options.length).toBeGreaterThan(0);
+
+    expect(screen.getByRole("option", { name: /all/i })).toBeInTheDocument();
+
+    categories.forEach((category) => {
+      expect(
+        screen.getByRole("option", { name: category.name })
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("should render products", async () => {
+    render(<BrowseProducts />, { wrapper: AllProviders });
+
+    await waitForElementToBeRemoved(() =>
+      screen.queryByRole("progressbar", { name: /products/i })
+    );
+
+    products.forEach((product) => {
+      expect(screen.getByText(product.name)).toBeInTheDocument();
+    });
   });
 });
