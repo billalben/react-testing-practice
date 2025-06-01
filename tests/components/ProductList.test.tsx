@@ -33,4 +33,14 @@ describe("ProductList", () => {
     const noProductsMessage = await screen.findByText(/No products/i);
     expect(noProductsMessage).toBeInTheDocument();
   });
+
+  it("should render error message if the API returns an error", async () => {
+    server.use(
+      http.get("/products", () => HttpResponse.json(null, { status: 500 }))
+    );
+    render(<ProductList />);
+
+    const errorMessage = await screen.findByText(/error/i);
+    expect(errorMessage).toBeInTheDocument();
+  });
 });
