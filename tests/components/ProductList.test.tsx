@@ -1,8 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
 import ProductList from "../../src/components/ProductList";
 import { server } from "../mocks/server";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, delay } from "msw";
 import { db } from "../mocks/db";
+// import delay from "delay";
 
 describe("ProductList", () => {
   const productIds: number[] = [];
@@ -42,5 +47,35 @@ describe("ProductList", () => {
 
     const errorMessage = await screen.findByText(/error/i);
     expect(errorMessage).toBeInTheDocument();
+  });
+
+  it("should render loading state while fetching products", async () => {
+    // server.use(http.get("/products", () => new Promise(() => {}))); // Keep the request pending
+
+    server.use(
+      http.get("/products", async () => {
+        await delay(); // Simulate a delay
+        return HttpResponse.json([]);
+      })
+    );
+
+    render(<ProductList />);
+
+    const loadingMessage = await screen.findByText(/loading/i);
+    expect(loadingMessage).toBeInTheDocument();
+  });
+
+  it("should remove loading state after fetching products", async () => {
+    render(<ProductList />);
+
+    await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
+  });
+
+  it("should remove loading state if data fetching failed", async () => {
+    server.use(http.get("/products", () => HttpResponse.error()));
+
+    render(<ProductList />);
+
+    await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
   });
 });
