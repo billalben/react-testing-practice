@@ -77,5 +77,6 @@ describe("ProductList", () => {
     render(<ProductList />);
 
     await waitForElementToBeRemoved(() => screen.getByText(/loading/i));
+    await screen.findByText(/error/i);
   });
 });
