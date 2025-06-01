@@ -50,8 +50,16 @@ function BrowseProducts() {
   if (errorProducts) return <div>Error: {errorProducts}</div>;
 
   const renderCategories = () => {
-    if (isCategoriesLoading) return <Skeleton />;
+    if (isCategoriesLoading) {
+      return (
+        <div role="progressbar" aria-label="Loading categories">
+          <Skeleton />
+        </div>
+      );
+    }
+
     if (errorCategories) return <div>Error: {errorCategories}</div>;
+
     return (
       <Select.Root
         onValueChange={(categoryId) =>
@@ -75,8 +83,6 @@ function BrowseProducts() {
   };
 
   const renderProducts = () => {
-    const skeletons = [1, 2, 3, 4, 5];
-
     if (errorProducts) return <div>Error: {errorProducts}</div>;
 
     const visibleProducts = selectedCategoryId
@@ -87,26 +93,28 @@ function BrowseProducts() {
       <Table.Root>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeaderCell>Name</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>Price</Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell></Table.ColumnHeaderCell>
+            {["Name", "Price", ""].map((header) => (
+              <Table.ColumnHeaderCell key={header}>
+                {header}
+              </Table.ColumnHeaderCell>
+            ))}
           </Table.Row>
         </Table.Header>
-        <Table.Body>
+        <Table.Body
+          role={isProductsLoading ? "progressbar" : undefined}
+          aria-label={isProductsLoading ? "Loading products" : undefined}
+        >
           {isProductsLoading &&
-            skeletons.map((skeleton) => (
-              <Table.Row key={skeleton}>
-                <Table.Cell>
-                  <Skeleton />
-                </Table.Cell>
-                <Table.Cell>
-                  <Skeleton />
-                </Table.Cell>
-                <Table.Cell>
-                  <Skeleton />
-                </Table.Cell>
+            Array.from({ length: 5 }).map((_, index) => (
+              <Table.Row key={index}>
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <Table.Cell key={idx}>
+                    <Skeleton />
+                  </Table.Cell>
+                ))}
               </Table.Row>
             ))}
+
           {!isProductsLoading &&
             visibleProducts.map((product) => (
               <Table.Row key={product.id}>
