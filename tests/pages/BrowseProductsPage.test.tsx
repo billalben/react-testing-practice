@@ -7,7 +7,7 @@ import AllProviders from "../AllProviders";
 import BrowseProducts from "../../src/pages/BrowseProductsPage";
 import userEvent from "@testing-library/user-event";
 import { Category, Product } from "../../src/entities";
-import { db } from "../mocks/db";
+import { db, getProductsByCategory } from "../mocks/db";
 import { simulateDelay, simulateError } from "../utils";
 
 describe("BrowseProductsPage", () => {
@@ -42,8 +42,6 @@ describe("BrowseProductsPage", () => {
   });
 
   it("should hide the loading skeleton after categories are fetched", async () => {
-    render(<BrowseProducts />, { wrapper: AllProviders });
-
     const { getCategoriesSkeleton } = renderComponent();
 
     await waitForElementToBeRemoved(getCategoriesSkeleton);
@@ -103,6 +101,27 @@ describe("BrowseProductsPage", () => {
       expect(screen.getByText(product.name)).toBeInTheDocument();
     });
   });
+
+  it("should filter products by category", async () => {
+    const { selectCategory, expectProductsToBeInTheDocument } =
+      renderComponent();
+
+    const selectedCategory = categories[0];
+    await selectCategory(selectedCategory.name);
+
+    const products = getProductsByCategory(selectedCategory.id);
+    expectProductsToBeInTheDocument(products);
+  });
+
+  it("should render all products if All category is selected", async () => {
+    const { selectCategory, expectProductsToBeInTheDocument } =
+      renderComponent();
+
+    await selectCategory(/all/i);
+
+    const products = db.product.getAll();
+    expectProductsToBeInTheDocument(products);
+  });
 });
 
 const renderComponent = () => {
@@ -126,10 +145,21 @@ const renderComponent = () => {
     await user.click(option);
   };
 
+  const expectProductsToBeInTheDocument = (products: Product[]) => {
+    const rows = screen.getAllByRole("row");
+    const dataRows = rows.slice(1);
+    expect(dataRows).toHaveLength(products.length);
+
+    products.forEach((product) => {
+      expect(screen.getByText(product.name)).toBeInTheDocument();
+    });
+  };
+
   return {
     getCategoriesSkeleton,
     getProductsSkeleton,
     getCategoriesComboBox,
     selectCategory,
+    expectProductsToBeInTheDocument,
   };
 };
