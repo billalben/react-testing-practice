@@ -106,11 +106,47 @@ describe("ProductForm", () => {
       const form = await waitForForm();
 
       const user = userEvent.setup();
-      if (name) {
-        await user.type(form.nameInput, name);
-      }
+      if (name) await user.type(form.nameInput, name);
 
       await user.type(form.priceInput, "10"); // type a valid price
+      await user.click(form.categoryInput); // open the category select
+      const options = screen.getAllByRole("option");
+      await user.click(options[0]); // select the first category
+      await user.click(form.submitButton); // submit the form
+
+      const error = screen.getByRole("alert");
+      expect(error).toBeInTheDocument();
+      expect(error).toHaveTextContent(errorMessage);
+    }
+  );
+
+  it.each([
+    {
+      scenario: "missing",
+      errorMessage: /required/i,
+    },
+    {
+      scenario: "less than 1",
+      price: 0,
+      errorMessage: /must be greater than/i,
+    },
+    {
+      scenario: "greater than 1000",
+      price: 1001,
+      errorMessage: /must be less than/i,
+    },
+  ])(
+    "should display an error if price is $scenario",
+    async ({ price, errorMessage }) => {
+      const { waitForForm } = renderComponent();
+
+      const form = await waitForForm();
+
+      const user = userEvent.setup();
+      if (price !== undefined)
+        await user.type(form.priceInput, price.toString());
+
+      await user.type(form.nameInput, "Valid Product Name"); // type a valid name
       await user.click(form.categoryInput); // open the category select
       const options = screen.getAllByRole("option");
       await user.click(options[0]); // select the first category
