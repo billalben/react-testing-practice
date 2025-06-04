@@ -3,6 +3,7 @@ import ProductForm from "../../src/components/ProductForm";
 import AllProviders from "../AllProviders";
 import { Category, Product } from "../../src/entities";
 import { db } from "../mocks/db";
+import userEvent from "@testing-library/user-event";
 
 describe("ProductForm", () => {
   let category: Category;
@@ -28,6 +29,7 @@ describe("ProductForm", () => {
           nameInput: screen.getByPlaceholderText(/name/i),
           priceInput: screen.getByPlaceholderText(/price/i),
           categoryInput: screen.getByRole("combobox", { name: /category/i }),
+          submitButton: screen.getByRole("button", { name: /submit/i }),
         };
       },
 
@@ -84,5 +86,39 @@ describe("ProductForm", () => {
     const { nameInput } = await waitForForm();
 
     expect(nameInput).toHaveFocus();
+  });
+
+  it("should display an error if name is missing", async () => {
+    const { waitForForm } = renderComponent();
+
+    const form = await waitForForm();
+
+    const user = userEvent.setup();
+    await user.type(form.priceInput, "10"); // type a valid price
+    await user.click(form.categoryInput); // open the category select
+    const options = screen.getAllByRole("option");
+    await user.click(options[0]); // select the first category
+    await user.click(form.submitButton); // submit the form
+
+    const errorMessage = screen.getByRole("alert");
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent(/required/i);
+  });
+
+  it("should display an error if price is missing", async () => {
+    const { waitForForm } = renderComponent();
+
+    const form = await waitForForm();
+
+    const user = userEvent.setup();
+    await user.type(form.nameInput, "Test Product"); // type a valid name
+    await user.click(form.categoryInput); // open the category select
+    const options = screen.getAllByRole("option");
+    await user.click(options[0]); // select the first category
+    await user.click(form.submitButton); // submit the form
+
+    const errorMessage = screen.getByRole("alert");
+    expect(errorMessage).toBeInTheDocument();
+    expect(errorMessage).toHaveTextContent(/required/i);
   });
 });
