@@ -88,37 +88,37 @@ describe("ProductForm", () => {
     expect(nameInput).toHaveFocus();
   });
 
-  it("should display an error if name is missing", async () => {
-    const { waitForForm } = renderComponent();
+  it.each([
+    {
+      scenario: "missing",
+      errorMessage: /required/i,
+    },
+    {
+      scenario: "longer than 255 characters",
+      name: "a".repeat(256),
+      errorMessage: /255/i,
+    },
+  ])(
+    "should display an error if name is $scenario",
+    async ({ name, errorMessage }) => {
+      const { waitForForm } = renderComponent();
 
-    const form = await waitForForm();
+      const form = await waitForForm();
 
-    const user = userEvent.setup();
-    await user.type(form.priceInput, "10"); // type a valid price
-    await user.click(form.categoryInput); // open the category select
-    const options = screen.getAllByRole("option");
-    await user.click(options[0]); // select the first category
-    await user.click(form.submitButton); // submit the form
+      const user = userEvent.setup();
+      if (name) {
+        await user.type(form.nameInput, name);
+      }
 
-    const errorMessage = screen.getByRole("alert");
-    expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveTextContent(/required/i);
-  });
+      await user.type(form.priceInput, "10"); // type a valid price
+      await user.click(form.categoryInput); // open the category select
+      const options = screen.getAllByRole("option");
+      await user.click(options[0]); // select the first category
+      await user.click(form.submitButton); // submit the form
 
-  it("should display an error if price is missing", async () => {
-    const { waitForForm } = renderComponent();
-
-    const form = await waitForForm();
-
-    const user = userEvent.setup();
-    await user.type(form.nameInput, "Test Product"); // type a valid name
-    await user.click(form.categoryInput); // open the category select
-    const options = screen.getAllByRole("option");
-    await user.click(options[0]); // select the first category
-    await user.click(form.submitButton); // submit the form
-
-    const errorMessage = screen.getByRole("alert");
-    expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveTextContent(/required/i);
-  });
+      const error = screen.getByRole("alert");
+      expect(error).toBeInTheDocument();
+      expect(error).toHaveTextContent(errorMessage);
+    }
+  );
 });
