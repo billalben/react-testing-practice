@@ -53,6 +53,7 @@ const ProductForm = ({ product, onSubmit }: Props) => {
           <TextField.Input
             // id="name"
             aria-label="Name"
+            autoFocus
             placeholder="Name"
             {...register("name")}
             size="3"

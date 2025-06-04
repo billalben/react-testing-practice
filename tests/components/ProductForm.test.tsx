@@ -21,8 +21,9 @@ describe("ProductForm", () => {
     });
 
     return {
-      waitForForm: () => screen.findByRole("form"),
-      getInputs: () => {
+      waitForForm: async () => {
+        await screen.findByRole("form");
+
         return {
           nameInput: screen.getByPlaceholderText(/name/i),
           priceInput: screen.getByPlaceholderText(/price/i),
@@ -30,17 +31,23 @@ describe("ProductForm", () => {
         };
       },
 
+      //   getInputs: () => {
+      //     return {
+      //       nameInput: screen.getByPlaceholderText(/name/i),
+      //       priceInput: screen.getByPlaceholderText(/price/i),
+      //       categoryInput: screen.getByRole("combobox", { name: /category/i }),
+      //     };
+      //   },
+
       //   getNameInput: () => screen.getByPlaceholderText(/name/i),
       //   getPriceInput: () => screen.getByPlaceholderText(/price/i),
     };
   };
 
   it("should render form fields", async () => {
-    const { waitForForm, getInputs } = renderComponent();
+    const { waitForForm } = renderComponent();
 
-    await waitForForm();
-
-    const { nameInput, priceInput, categoryInput } = getInputs();
+    const { nameInput, priceInput, categoryInput } = await waitForForm();
 
     // Check if the name input is rendered
     expect(nameInput).toBeInTheDocument();
@@ -60,16 +67,22 @@ describe("ProductForm", () => {
       categoryId: category.id,
     };
 
-    const { waitForForm, getInputs } = renderComponent(mockProduct);
+    const { waitForForm } = renderComponent(mockProduct);
 
-    await waitForForm();
-
-    const inputs = getInputs();
+    const inputs = await waitForForm();
 
     expect(inputs.nameInput).toHaveValue(mockProduct.name);
 
     expect(inputs.priceInput).toHaveValue(mockProduct.price.toString());
 
     expect(inputs.categoryInput).toHaveTextContent(category.name);
+  });
+
+  it("should put focus on the name field when form mounting", async () => {
+    const { waitForForm } = renderComponent();
+
+    const { nameInput } = await waitForForm();
+
+    expect(nameInput).toHaveFocus();
   });
 });
