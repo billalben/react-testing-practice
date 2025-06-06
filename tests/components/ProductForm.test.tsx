@@ -17,7 +17,9 @@ describe("ProductForm", () => {
   });
 
   const renderComponent = (product?: Product) => {
-    render(<ProductForm onSubmit={vi.fn()} product={product} />, {
+    const submitHandler = vi.fn();
+
+    render(<ProductForm onSubmit={submitHandler} product={product} />, {
       wrapper: AllProviders,
     });
 
@@ -25,24 +27,38 @@ describe("ProductForm", () => {
       waitForForm: async () => {
         await screen.findByRole("form");
 
+        const nameInput = screen.getByPlaceholderText(/name/i);
+        const priceInput = screen.getByPlaceholderText(/price/i);
+        const categoryInput = screen.getByRole("combobox", {
+          name: /category/i,
+        });
+        const submitButton = screen.getByRole("button");
+
+        const fill = async (product: Partial<Product>) => {
+          const user = userEvent.setup();
+
+          if (product.name !== undefined) {
+            await user.type(nameInput, product.name);
+          }
+
+          if (product.price !== undefined) {
+            await user.type(priceInput, product.price.toString());
+          }
+
+          await user.click(categoryInput);
+          const options = screen.getAllByRole("option");
+          await user.click(options[0]);
+          await user.click(submitButton);
+        };
+
         return {
-          nameInput: screen.getByPlaceholderText(/name/i),
-          priceInput: screen.getByPlaceholderText(/price/i),
-          categoryInput: screen.getByRole("combobox", { name: /category/i }),
-          submitButton: screen.getByRole("button", { name: /submit/i }),
+          nameInput,
+          priceInput,
+          categoryInput,
+          submitButton,
+          fill,
         };
       },
-
-      //   getInputs: () => {
-      //     return {
-      //       nameInput: screen.getByPlaceholderText(/name/i),
-      //       priceInput: screen.getByPlaceholderText(/price/i),
-      //       categoryInput: screen.getByRole("combobox", { name: /category/i }),
-      //     };
-      //   },
-
-      //   getNameInput: () => screen.getByPlaceholderText(/name/i),
-      //   getPriceInput: () => screen.getByPlaceholderText(/price/i),
     };
   };
 
@@ -105,14 +121,12 @@ describe("ProductForm", () => {
 
       const form = await waitForForm();
 
-      const user = userEvent.setup();
-      if (name) await user.type(form.nameInput, name);
-
-      await user.type(form.priceInput, "10"); // type a valid price
-      await user.click(form.categoryInput); // open the category select
-      const options = screen.getAllByRole("option");
-      await user.click(options[0]); // select the first category
-      await user.click(form.submitButton); // submit the form
+      await form.fill({
+        id: 1,
+        name: name || undefined,
+        price: 100,
+        categoryId: category.id,
+      });
 
       const error = screen.getByRole("alert");
       expect(error).toBeInTheDocument();
@@ -121,10 +135,7 @@ describe("ProductForm", () => {
   );
 
   it.each([
-    {
-      scenario: "missing",
-      errorMessage: /required/i,
-    },
+    { scenario: "missing", errorMessage: /required/i },
     {
       scenario: "less than 1",
       price: 0,
@@ -141,16 +152,12 @@ describe("ProductForm", () => {
       const { waitForForm } = renderComponent();
 
       const form = await waitForForm();
-
-      const user = userEvent.setup();
-      if (price !== undefined)
-        await user.type(form.priceInput, price.toString());
-
-      await user.type(form.nameInput, "Valid Product Name"); // type a valid name
-      await user.click(form.categoryInput); // open the category select
-      const options = screen.getAllByRole("option");
-      await user.click(options[0]); // select the first category
-      await user.click(form.submitButton); // submit the form
+      await form.fill({
+        id: 1,
+        name: "Valid Product Name",
+        price: price,
+        categoryId: category.id,
+      });
 
       const error = screen.getByRole("alert");
       expect(error).toBeInTheDocument();
