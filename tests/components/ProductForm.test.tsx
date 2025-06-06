@@ -45,7 +45,9 @@ describe("ProductForm", () => {
             await user.type(priceInput, product.price.toString());
           }
 
+          await user.tab(); // Move focus to the category input
           await user.click(categoryInput);
+
           const options = screen.getAllByRole("option");
           await user.click(options[0]);
           await user.click(submitButton);
