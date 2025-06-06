@@ -47,7 +47,9 @@ describe("ProductForm", () => {
         const categoryInput = screen.getByRole("combobox", {
           name: /category/i,
         });
-        const submitButton = screen.getByRole("button");
+        const submitButton = screen.getByRole("button", {
+          name: /submit/i,
+        });
 
         const fill = async (product: Partial<Product>) => {
           const user = userEvent.setup();
@@ -208,5 +210,36 @@ describe("ProductForm", () => {
     const toast = await screen.findByRole("status");
     expect(toast).toBeInTheDocument();
     expect(toast).toHaveTextContent(/error/i);
+  });
+
+  it("should disabled the submit button upon submission", async () => {
+    const { waitForForm, onSubmit } = renderComponent();
+    onSubmit.mockReturnValue(new Promise((resolve) => resolve));
+
+    const form = await waitForForm();
+    await form.fill({
+      id: 1,
+      name: "Test Product",
+      price: 100,
+      categoryId: category.id,
+    });
+
+    expect(form.submitButton).toBeDisabled();
+  });
+
+  it("should enable the submit button after submission", async () => {
+    const { waitForForm, onSubmit } = renderComponent();
+    onSubmit.mockResolvedValue({});
+
+    const form = await waitForForm();
+    await form.fill({
+      id: 1,
+      name: "Test Product",
+      price: 100,
+      categoryId: category.id,
+    });
+
+    // expect(form.submitButton).toBeEnabled();
+    expect(form.submitButton).not.toBeDisabled();
   });
 });
