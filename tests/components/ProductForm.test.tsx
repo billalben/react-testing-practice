@@ -4,6 +4,7 @@ import AllProviders from "../AllProviders";
 import { Category, Product } from "../../src/entities";
 import { db } from "../mocks/db";
 import userEvent from "@testing-library/user-event";
+import { Toaster } from "react-hot-toast";
 
 describe("ProductForm", () => {
   let category: Category;
@@ -19,11 +20,25 @@ describe("ProductForm", () => {
   const renderComponent = (product?: Product) => {
     const submitHandler = vi.fn();
 
-    render(<ProductForm onSubmit={submitHandler} product={product} />, {
-      wrapper: AllProviders,
-    });
+    render(
+      <>
+        <ProductForm onSubmit={submitHandler} product={product} />
+        <Toaster />
+      </>,
+      {
+        wrapper: AllProviders,
+      }
+    );
 
     return {
+      onSubmit: submitHandler,
+
+      expectErrorToBeInTheDocument: (errorMessage: RegExp) => {
+        const error = screen.getByRole("alert");
+        expect(error).toBeInTheDocument();
+        expect(error).toHaveTextContent(errorMessage);
+      },
+
       waitForForm: async () => {
         await screen.findByRole("form");
 
@@ -119,7 +134,7 @@ describe("ProductForm", () => {
   ])(
     "should display an error if name is $scenario",
     async ({ name, errorMessage }) => {
-      const { waitForForm } = renderComponent();
+      const { waitForForm, expectErrorToBeInTheDocument } = renderComponent();
 
       const form = await waitForForm();
 
@@ -130,9 +145,7 @@ describe("ProductForm", () => {
         categoryId: category.id,
       });
 
-      const error = screen.getByRole("alert");
-      expect(error).toBeInTheDocument();
-      expect(error).toHaveTextContent(errorMessage);
+      expectErrorToBeInTheDocument(errorMessage);
     }
   );
 
@@ -151,7 +164,7 @@ describe("ProductForm", () => {
   ])(
     "should display an error if price is $scenario",
     async ({ price, errorMessage }) => {
-      const { waitForForm } = renderComponent();
+      const { waitForForm, expectErrorToBeInTheDocument } = renderComponent();
 
       const form = await waitForForm();
       await form.fill({
@@ -161,9 +174,39 @@ describe("ProductForm", () => {
         categoryId: category.id,
       });
 
-      const error = screen.getByRole("alert");
-      expect(error).toBeInTheDocument();
-      expect(error).toHaveTextContent(errorMessage);
+      expectErrorToBeInTheDocument(errorMessage);
     }
   );
+
+  it("should call onSubmit with the correct data", async () => {
+    const mockProduct: Partial<Product> = {
+      name: "Test Product",
+      price: 100,
+      categoryId: category.id,
+    };
+
+    const { waitForForm, onSubmit } = renderComponent();
+
+    const form = await waitForForm();
+    await form.fill(mockProduct);
+
+    expect(onSubmit).toHaveBeenCalledWith(mockProduct);
+  });
+
+  it("should display a toast if submission fails", async () => {
+    const { waitForForm, onSubmit } = renderComponent();
+    onSubmit.mockRejectedValue(new Error("Submission failed"));
+
+    const form = await waitForForm();
+    await form.fill({
+      id: 1,
+      name: "Test Product",
+      price: 100,
+      categoryId: category.id,
+    });
+
+    const toast = await screen.findByRole("status");
+    expect(toast).toBeInTheDocument();
+    expect(toast).toHaveTextContent(/error/i);
+  });
 });
