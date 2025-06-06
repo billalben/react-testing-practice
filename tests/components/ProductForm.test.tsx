@@ -133,6 +133,11 @@ describe("ProductForm", () => {
       name: "a".repeat(256),
       errorMessage: /255/i,
     },
+    {
+      scenario: "whitespace only",
+      name: "   ",
+      errorMessage: /required/i,
+    },
   ])(
     "should display an error if name is $scenario",
     async ({ name, errorMessage }) => {
