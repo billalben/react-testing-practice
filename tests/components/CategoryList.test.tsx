@@ -7,7 +7,7 @@ import CategoryList from "../../src/components/CategoryList";
 import { Category } from "../../src/entities";
 import { db } from "../mocks/db";
 import { simulateDelay, simulateError } from "../utils";
-import ReduxProvider from "../../src/providers/ReduxProvider";
+import AllProviders from "../AllProviders";
 
 describe("CategoryList", () => {
   const categories: Category[] = [];
@@ -25,11 +25,7 @@ describe("CategoryList", () => {
   });
 
   const renderComponent = () => {
-    render(
-      <ReduxProvider>
-        <CategoryList />
-      </ReduxProvider>
-    );
+    render(<CategoryList />, { wrapper: AllProviders });
   };
 
   it("should render a loading message when fetching categories", () => {
