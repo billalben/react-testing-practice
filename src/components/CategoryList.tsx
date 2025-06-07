@@ -9,7 +9,7 @@ function CategoryList() {
   const error = useAppSelector((state) => state.category.error);
 
   useEffect(() => {
-    dispatch(fetchCategories());
+    void dispatch(fetchCategories());
   }, [dispatch]);
 
   if (error) return <div>Error: {error}</div>;
@@ -21,7 +21,7 @@ function CategoryList() {
         <div>Loading...</div>
       ) : (
         <ul>
-          {categories!.map((category) => (
+          {categories.map((category) => (
             <li key={category.id}>{category.name}</li>
           ))}
         </ul>

@@ -18,18 +18,18 @@ const initialState: CategoryState = {
 export const fetchCategories = createAsyncThunk<Category[]>(
   "categories/fetch",
   async () => {
-    const { data } = await axios.get("/categories");
+    const { data } = await axios.get<Category[]>("/categories");
     return data;
   }
 );
 
-export const createCategory = createAsyncThunk(
-  "categories/create",
-  async (name: string) => {
-    const { data } = await axios.post("/categories", { name });
-    return data;
-  }
-);
+// export const createCategory = createAsyncThunk(
+//   "categories/create",
+//   async (name: string) => {
+//     const { data } = await axios.post<Category[]>("/categories", { name });
+//     return data;
+//   }
+// );
 
 export const categorySlice = createSlice({
   name: "categories",
