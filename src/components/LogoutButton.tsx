@@ -8,9 +8,9 @@ const LogoutButton = () => {
     <Button
       color="gray"
       variant="soft"
-      onClick={() =>
-        logout({ logoutParams: { returnTo: window.location.origin } })
-      }
+      onClick={() => {
+        void logout({ logoutParams: { returnTo: window.location.origin } });
+      }}
     >
       Log Out
     </Button>
