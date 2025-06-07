@@ -4,6 +4,7 @@ import { useAuth0, User } from "@auth0/auth0-react";
 import { render } from "@testing-library/react";
 import routes from "../src/routes";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
+
 export const simulateDelay = (endpoint: string) => {
   // Simulate a delay for the given endpoint
   server.use(

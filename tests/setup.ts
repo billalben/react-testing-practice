@@ -7,17 +7,17 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-vi.mock("@auth0/auth0-react", () => {
-  return {
-    useAuth0: vi.fn().mockReturnValue({
+vi.mock("@auth0/auth0-react", () => ({
+  useAuth0: vi
+    .fn()
+    .mockReturnValue({
       isAuthenticated: false,
       isLoading: false,
       user: undefined,
     }),
-    Auth0Provider: ({ children }: PropsWithChildren) => children,
-    withAuthenticationRequired: (component: ReactNode) => component,
-  };
-});
+  Auth0Provider: ({ children }: PropsWithChildren) => children,
+  withAuthenticationRequired: (component: ReactNode) => component,
+}));
 
 global.ResizeObserver = ResizeObserver;
 
