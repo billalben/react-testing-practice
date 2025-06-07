@@ -6,8 +6,9 @@
 // import ToastDemo from "../components/ToastDemo";
 // import OrderStatusSelector from "../components/OrderStatusSelector";
 // import BrowseProducts from "./BrowseProductsPage";
+// import ProductForm from "../components/ProductForm";
 
-import ProductForm from "../components/ProductForm";
+import Label from "../components/Label";
 
 const PlaygroundPage = () => {
   // return <Onboarding />;
@@ -18,10 +19,10 @@ const PlaygroundPage = () => {
   // return <ToastDemo />;
   // return <OrderStatusSelector onChange={(status) => console.log("Selected status:", status)} />;
   // return <OrderStatusSelector onChange={console.log} />;
-
   // return <BrowseProducts />;
+  // return <ProductForm />;
 
-  return <ProductForm />;
+  return <Label labelId="welcome" />;
 };
 
 export default PlaygroundPage;

@@ -14,6 +14,7 @@ const LanguageSelector = () => {
       <Select.Content>
         <Select.Item value="en">EN</Select.Item>
         <Select.Item value="es">ES</Select.Item>
+        <Select.Item value="fr">FR</Select.Item>
       </Select.Content>
     </Select.Root>
   );
